@@ -195,6 +195,30 @@ const savePrecautions = async (req,res)=>{
 
   
 
+const login = async(req,res)=>{
+    try{
+        const { email, password } = req.body;
+        const login = await Log.findOne({email}); 
+        if(login.password===password){
+            res.json({id:login.id});
+        }
+        else{
+            res.json({error:"Invalid password"})
+        }
+    }
+    catch(error){
+        console.error(error);
+        res.status(500).json({error: 'server error'});
+    }
+}
 
 
+<<<<<<< HEAD
 module.exports = { getReport, getPatient, setPatient, getPatients, getOldageHomeInfo,getDates,savePrecautions,getPrevReports,getreports,editPatient,removePatient}
+=======
+  
+
+
+
+module.exports = { getReport, getPatient, setPatient, getPatients, getOldageHomeInfo,getDates,savePrecautions,getPrevReports,getreports,editPatient,login}
+>>>>>>> 00fb5c41dd40a5ae8a617481b364a0029e635581
