@@ -1,17 +1,46 @@
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";
 
 const Signin = ({ setIsDoctor }) => {
-  const [userRole, setUserRole] = useState("");
+  const [userRole, setUserRole] = useState("Select your role");
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleValueChange = (event) => {
-    const role = event.target.value;
-    setUserRole(role);
-    setIsDoctor(role === 'doctor');
+  
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target; 
+    if (name === "email") {
+        const lowercaseEmail = value.toLowerCase(); 
+        setEmail(lowercaseEmail); 
+    } else if (name === "password") {
+        setPassword(value); 
+    }
   };
 
-  const handleSignIn = () => {
+  const handleSignIn = async() => {
+    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/en/login`, {
+      email:email,
+      password: password 
+  }
+);
+
+  if(response.data.error){
+    alert("Invaild password");
+    return;
+  }
+
+  else{
+
+    console.log(response.data);
+    setUserRole(response.data.id);
+    setIsDoctor(response.data.id === 'doctor');
+  }
+
+
+  console.log(response.data);
     if (userRole) {
       navigate("/main");
     } else {
@@ -22,30 +51,61 @@ const Signin = ({ setIsDoctor }) => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="flex w-full max-w-4xl h-[80vh] bg-white rounded-xl shadow-2xl overflow-hidden">
-        {/* Left side - Form */}
+       
         <div className="w-1/2 p-8 flex flex-col justify-center">
           <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Welcome to Saanjh Sahayak</h2>
           <p className="text-center text-gray-600 mb-8">Please select if you are a doctor or a caretaker.</p>
           
           <div className="space-y-6">
-            <select
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-              value={userRole}
-              onChange={handleValueChange}
-            >
-              <option value="" disabled>Select your role</option>
-              <option value="doctor">Doctor</option>
-              <option value="caretaker">Caretaker</option>
-            </select>
-
+          <input
+                    type="username"
+                    className="login__input custom-input"
+                    placeholder="Email"
+                    style={{
+                      
+                      border: "2px solid #D1D1D4",
+                      background: "none",
+                      borderRadius: "40px",
+                      padding: "10px",
+                      paddingLeft: "24px",
+                      fontWeight: "700",
+                      width: "100%",
+                      alignItems: "center",
+                      transition: ".2s"
+                  }}
+                    name="email"
+                    value={email}
+                    onChange={handleInputChange}
+                    required
+                  />
+             <input
+                    type="password"
+                    className="login__input custom-input"
+                    placeholder="Password"
+                    style={{
+                 
+                        border: "2px solid #D1D1D4",
+                        background: "none",
+                        borderRadius: "40px",
+                        padding: "10px",
+                        paddingLeft: "24px",
+                        fontWeight: "700",
+                        width: "100%",
+                        alignItems: "center",
+                        transition: ".2s"
+                    }}
+                    name="password"
+                    value={password}
+                    onChange={handleInputChange}
+                    required
+                    autoComplete="current-password"
+                    />
             <button
               className={`w-full py-3 rounded-lg transition-all ${
-                userRole
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                   'bg-blue-600 hover:bg-blue-700 text-white'
               }`}
               onClick={handleSignIn}
-              disabled={!userRole}
+              
             >
               Sign in
             </button>
