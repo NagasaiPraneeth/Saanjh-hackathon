@@ -90,8 +90,16 @@ export default function List(props) {
         else if(editPatients && !deletePatients){
             navigate(`/edit`, { state: { patientData: response.data} })
         } 
-        
-
+        else{
+          console.log("puka naga ");
+          const patientID = id;
+          try {
+              const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/en/removepatient`, { patientID });
+              console.log(response.data);
+          } catch (error) {
+              console.error('Error removing patient:', error.response ? error.response.data : error.message);
+          }
+      }
       } catch (error) {
         console.error("Error in handlePatient:", error);
       }
