@@ -12,11 +12,11 @@ const Navbar = ({ isDoctor }) => {
   const handleBellClick = () => {
     if (hasNotification) {
       if (isDoctor) {
-        setnotificationHeadingMessage("New patient: John Doe");
+        setnotificationHeadingMessage("New patient: Aashish");
         setNotificationMessage("Suspected condition: Influenza");
       } else {
         setnotificationHeadingMessage("Diagnosis Done");
-        setNotificationMessage("Patient Jane Doe's diagnosis is complete");
+        setNotificationMessage("Patient Naga Sai's diagnosis is complete");
       }
       setShowNotification(true);
       setHasNotification(false);
