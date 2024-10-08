@@ -31,14 +31,11 @@ const Signin = ({ setIsDoctor }) => {
     alert("Invaild Email");
     return;
   }
-  if(response.data.error){
+  else if(response.data.error){
     alert("Invaild password");
     return;
   }
 
-  else if(response.error){
-
-  }
 
   else{
 
@@ -48,7 +45,6 @@ const Signin = ({ setIsDoctor }) => {
   }
 
 
-  console.log(response.data);
     if (userRole) {
       navigate("/main");
     } else {
