@@ -194,12 +194,13 @@ const login = async(req,res)=>{
     try{
         const { email, password } = req.body;
         const login = await Log.findOne({"email":email}); 
-
-        console.log(login);
-        if(login.password===password){
-            res.json({id:login.id});
+        if (!login) {
+            res.json({err:"Invalid email"})
         }
 
+        else if(login.password===password){
+            res.json({id:login.id});
+        }
         else{
             res.json({error:"Invalid password"})
         }
@@ -208,6 +209,7 @@ const login = async(req,res)=>{
         console.error(error);
         res.status(500).json({error: 'server error'});
     }
+}
 }
 
 
