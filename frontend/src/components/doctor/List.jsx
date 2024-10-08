@@ -86,24 +86,18 @@ export default function List(props) {
         } else if (!editPatients && !deletePatients) {
           navigate(`/patient`, { state: { id } });
         }
-<<<<<<< HEAD
-
-        else if(editPatients && !deletePatients){
-            navigate(`/edit`, { state: { patientData: response.data} })
-        } 
-        else{
-          console.log("puka naga ");
-          const patientID = id;
-          try {
-              const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/en/removepatient`, { patientID });
-              console.log(response.data);
-          } catch (error) {
-              console.error('Error removing patient:', error.response ? error.response.data : error.message);
-          }
+        
+      else{
+        console.log("puka naga ");
+        const patientID = id;
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/en/removepatient`, { patientID });
+            console.log(response.data);
+        } catch (error) {
+            console.error('Error removing patient:', error.response ? error.response.data : error.message);
+        }
       }
-=======
->>>>>>> 00fb5c41dd40a5ae8a617481b364a0029e635581
-      } catch (error) {
+    } catch (error) {
         console.error("Error in handleModify:", error);
       }
     };
