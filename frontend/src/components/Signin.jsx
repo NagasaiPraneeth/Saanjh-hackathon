@@ -21,15 +21,23 @@ const Signin = ({ setIsDoctor }) => {
   };
 
   const handleSignIn = async() => {
+    if (email && password){
     const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/en/login`, {
-      email:email,
-      password: password 
+          email:email,
+          password: password 
+      }
+    );
+  if(response.data.err){
+    alert("Invaild Email");
+    return;
   }
-);
-
   if(response.data.error){
     alert("Invaild password");
     return;
+  }
+
+  else if(response.error){
+
   }
 
   else{
@@ -46,6 +54,12 @@ const Signin = ({ setIsDoctor }) => {
     } else {
       alert("Please select a role before signing in.");
     }
+
+  }
+  else{
+    alert("Please Enter Email and password");
+    return;
+  }
   };
 
   return (
