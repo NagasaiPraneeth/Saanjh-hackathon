@@ -17,6 +17,13 @@ oldAgeHomeSchema=new mongoose.Schema({
     address:String,
     contact:Number,
 })
+
+loginSchema = new mongoose.Schema({
+  email: String,
+  password: String,
+  id:String
+});
+
 reportSchema = new mongoose.Schema({
     patient: String,
     patientId:ObjectId,
