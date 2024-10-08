@@ -49,6 +49,7 @@ const report = mongoose.model('report', reportSchema);
 const oldAgeHome = mongoose.model('oldAgeHome', oldAgeHomeSchema);
 const doctor = mongoose.model('doctor', doctorSchema);
 const Pdf=mongoose.model('pdf',PdfSchema)
+const Log=mongoose.model('log',loginSchema)
 
 
-module.exports = { patient, report , oldAgeHome, doctor,Pdf}
+module.exports = { patient, report , oldAgeHome, doctor,Pdf,Log}
