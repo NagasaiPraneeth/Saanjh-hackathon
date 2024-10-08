@@ -3,6 +3,7 @@ import Navbar from './patient/Navbar';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useLocation } from "react-router-dom";
+import Swal from 'sweetalert2';
 
 export default function PatientRegistrationForm() {
   const [currentChronic, setCurrentChronic] = useState('');
@@ -95,7 +96,11 @@ export default function PatientRegistrationForm() {
       phoneNumber: '',
       chronics : [],
     });
-    alert('Form data submitted successfully!');
+    Swal.fire({
+      icon: 'success',
+      title: 'success',
+      text: 'changes made successfully!',
+    });
     navigate(-1);
   };
 

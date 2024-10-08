@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Navbar from './patient/Navbar';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
+import Swal from 'sweetalert2';
 export default function PatientRegistrationForm() {
   const [currentChronic, setCurrentChronic] = useState('');
   const navigate = useNavigate();
@@ -42,7 +42,14 @@ export default function PatientRegistrationForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Form submitted:', formData);
-    
+    if (!formData.firstName || !formData.lastName || !formData.dateOfBirth || !formData.gender || !formData.bloodGroup || !formData.phoneNumber) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Incomplete Data',
+        text: 'Please fill in all the required fields before submitting!',
+      });
+      return; // Stop the form submission if validation fails
+    }
     // Create a new object with the date properly formatted
     const formDataToSend = {
       ...formData,
@@ -60,7 +67,11 @@ export default function PatientRegistrationForm() {
       phoneNumber: '',
       chronics : [],
     });
-    alert('Form data submitted successfully!');
+    Swal.fire({
+      icon: 'success',
+      title: 'success',
+      text: 'Data added successfully!',
+    });
     navigate(-1);
   };
 
@@ -192,6 +203,7 @@ export default function PatientRegistrationForm() {
                 <div className="flex justify-end space-x-4">
                   <button
                     type="button"
+                    onClick={() => navigate(-1)} 
                     className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
                     Cancel

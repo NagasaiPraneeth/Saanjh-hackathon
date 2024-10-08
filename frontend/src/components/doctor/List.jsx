@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import Dropdown from "./Dropdown";
 import { useEffect, useState } from "react";
 import axios from 'axios';
-
+import Swal from 'sweetalert2';
 export default function List(props) {
   const [editPatients, setEditPatients] = useState(false);
   const [deletePatients, setDeletePatients] = useState(false);
@@ -75,30 +75,58 @@ export default function List(props) {
       }
     };
   };
-
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   // Handle patient modification (edit or delete)
   const handleModify = (id) => {
     return async () => {
       try {
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/en/getpatient/${id}`);
-        if (editPatients && !deletePatients) {
-          navigate(`/edit`, { state: { patientData: response.data } });
-        } else if (!editPatients && !deletePatients) {
-          navigate(`/patient`, { state: { id } });
-        }
         
-      else{
-        console.log("puka naga ");
-        const patientID = id;
-        try {
+        if (editPatients && !deletePatients) {
+          // If editing the patient
+          navigate(`/edit`, { state: { patientData: response.data } });
+          
+        } else if (!editPatients && !deletePatients) {
+          // If just viewing the patient
+          navigate(`/patient`, { state: { id } });
+  
+        } else {
+          // If deleting the patient
+          console.log("Deleting patient...");
+  
+          const patientID = id;
+          try {
             const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/en/removepatient`, { patientID });
+ 
+            Swal.fire({
+              icon: 'success',
+              title: 'Patient Deleted',
+              text: 'Patient and related data have been successfully deleted!',
+            });
+            await sleep(2000);
+            navigate(0);
+
             console.log(response.data);
-        } catch (error) {
+          } catch (error) {
             console.error('Error removing patient:', error.response ? error.response.data : error.message);
+  
+            // Show error alert
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: `Failed to remove patient: ${error.response ? error.response.data : error.message}`,
+            });
+          }
         }
-      }
-    } catch (error) {
+      } catch (error) {
         console.error("Error in handleModify:", error);
+        
+        // Show error alert for fetching patient details
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: `Failed to fetch patient data: ${error.message}`,
+        });
       }
     };
   };
