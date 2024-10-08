@@ -1,9 +1,7 @@
 const express = require('express');
 const app = express();
-const { patient ,report} = require('../Schema');
+const { patient ,report,Log} = require('../Schema');
 const {ObjectId} = require('mongodb');
-const mongoose = require('mongoose');
-const { GridFSBucket } = require('mongodb');
 
 const getReport = async (req, res) => {
     try {
@@ -125,48 +123,6 @@ const getreports = async (req,res) => {
     }
 }
 
-const removePatient = async (req, res) => {
-    try {
-        const { patientID } = req.body; // Expecting patientID from the request body
-
-        // Use 'new' to create an ObjectId
-        const patientToDelete = await patient.findOne({ _id: new ObjectId(patientID) });
-        if (!patientToDelete) {
-            return res.status(404).json({ message: 'Patient not found' });
-        }
-
-        // MongoDB connection for GridFS
-        const db = mongoose.connection.db;
-        const bucket = new GridFSBucket(db);
-
-        // Loop through each report and remove associated files and chunks
-        for (const reportId of patientToDelete.reportsList) {
-            const reportDoc = await report.findOne({ _id: new ObjectId(reportId) });
-            
-            if (reportDoc) {
-                // Delete the associated file from GridFS
-                const fileId = reportDoc.file;
-                
-                if (fileId) {
-                    // Delete all chunks related to the file
-                    await bucket.delete(new ObjectId(fileId));
-                }
-
-                // Delete the report document
-                await report.deleteOne({ _id: reportDoc._id });
-            }
-        }
-
-        // Remove the patient from the database
-        await patient.deleteOne({ _id: patientToDelete._id });
-
-        res.status(200).json({ message: 'Patient and associated records deleted successfully' });
-    } catch (error) {
-        console.error('Error removing patient:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
-};
-
 const getOldageHomeInfo = async (req,res) => {
     try{
         const name = req.params.name;
@@ -198,10 +154,13 @@ const savePrecautions = async (req,res)=>{
 const login = async(req,res)=>{
     try{
         const { email, password } = req.body;
-        const login = await Log.findOne({email}); 
+        const login = await Log.findOne({"email":email}); 
+
+        console.log(login);
         if(login.password===password){
             res.json({id:login.id});
         }
+
         else{
             res.json({error:"Invalid password"})
         }
@@ -213,12 +172,8 @@ const login = async(req,res)=>{
 }
 
 
-<<<<<<< HEAD
-module.exports = { getReport, getPatient, setPatient, getPatients, getOldageHomeInfo,getDates,savePrecautions,getPrevReports,getreports,editPatient,removePatient}
-=======
   
 
 
 
 module.exports = { getReport, getPatient, setPatient, getPatients, getOldageHomeInfo,getDates,savePrecautions,getPrevReports,getreports,editPatient,login}
->>>>>>> 00fb5c41dd40a5ae8a617481b364a0029e635581
