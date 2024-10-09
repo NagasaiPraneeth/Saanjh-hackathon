@@ -34,7 +34,7 @@ const uploadpdf = async (req, res) => {
                  parsed=(data.text);
             })
 
-           const response =  await axios.post('https://saanjh-sahayak-backend.vercel.app/en/getparameters', { text: parsed });
+           const response =  await axios.post('http://localhost:5001/en/getparameters', { text: parsed });
 
            console.log(response.data);
            if(response.data.data===false){
@@ -67,7 +67,7 @@ const uploadpdf = async (req, res) => {
         const jsonObject = fileDetails.jsonObject;
         
         console.log("hi");
-        const analysis_response = await axios.post('https://saanjh-sahayak-backend.vercel.app/en/analysis',{fileId : fileId, jsonObject:jsonObject,patientId: patientId,name : name } );
+        const analysis_response = await axios.post('http://localhost:5001/en/analysis',{fileId : fileId, jsonObject:jsonObject,patientId: patientId,name : name } );
         console.log("analysis_response ",analysis_response.data.data)
         return res.json({data : true});
 

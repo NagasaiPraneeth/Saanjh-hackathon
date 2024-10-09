@@ -341,7 +341,8 @@ export default function CaretakerAnalysis() {
                         scrollbarWidth: 'none',
                       }}
                     >
-                      {/* PDF pages will be rendered here */}
+                      {/* <iframe src={url} width="100%" height="500px"></iframe> */}
+                      <iframe src={url} width="100%" height="500px" style={{ border: "none" }}></iframe>
                     </div>
                   </div>
                 </div>
