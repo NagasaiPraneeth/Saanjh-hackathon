@@ -93,7 +93,7 @@ export default function PatientRegistrationForm() {
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">First Name</label>
-                    <input
+                    <input 
                       required
                       type="text"
                       name="firstName"
