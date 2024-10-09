@@ -16,6 +16,7 @@ export default function PdfShow() {
   const containerRef = useRef(null);
 
   useEffect(() => {
+    console.log(url);
     const loadPdf = async () => {
       try {
         const pdfData = await fetch(url).then((res) => res.arrayBuffer());
@@ -138,7 +139,8 @@ export default function PdfShow() {
                 scrollbarWidth: 'none',
               }}
             >
-              {/* PDF pages will be rendered here */}
+              <iframe src={url} width="100%" height="500px" style={{ border: "none" }}></iframe>
+
             </div>
           </div>
         </div>

@@ -28,7 +28,7 @@ export default function Main(props) {
 
         </div>
       </div>  
-      <MedicalChatbot />
+      <MedicalChatbot  />
     </div>
   );
 }

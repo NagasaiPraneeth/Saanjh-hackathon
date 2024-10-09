@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const express = require('express');
 const fs = require('fs');
 const pdf = require('pdf-parse');
+const axios = require('axios');
 const { report, patient } = require('../Schema.js');
 const {
     GoogleGenerativeAI,
@@ -170,7 +171,7 @@ const analysis = async (req, res) => {
                         text: '{\n  "date": "24/03/2019",\n  "Uric Acid": "4.0 mg/dL",\n  "Urea": "16 mg/dL",\n  "Creatinine": "0.5 mg/dL",\n  "Sodium": "138 mmol/L",\n  "Potassium": "5.0 mmol/L",\n  "Chlorides": "101 mmol/L",\n  "Fasting Plasma Glucose": "201 mg/dL",\n  "2 hrs Post Lunch Plasma Glucose": "212 mg/dL",\n  "Haemoglobin": "11.2 g/dL",\n  "Total RBC Count": "4.38 millions/cumm",\n  "Packed Cell Volume / Hematocrit": "34.2 Vol%",\n  "MCV": "78.1 fl",\n  "MCH": "25.7 pg",\n  "MCHC": "32.9 gm/dL",\n  "RDW": "16.8 %",\n  "Total WBC Count": "6400 Cells/cumm",\n  "Neutrophils": "60 %",\n  "Lymphocytes": "28 %",\n  "Eosinophils": "2 %",\n  "Monocytes": "9 %",\n  "Basophils": "1 %",\n  "Absolute Neutrophil Count": "3900 Cells/cumm",\n  "Absolute Lymphocyte Count": "1800 Cells/cumm",\n  "Absolute Eosinophil Count": "100 Cells/cumm",\n  "Absolute Monocyte Count": "600 Cells/cumm",\n  "Platelet Count": "427000 /cumm",\n  "RBC": "Normocytic Normochromic with mild anisocytosis",\n  "WBC": "Normal in morphology,maturity and distribution",\n  "Platelets": "Adequate",\n  "Colour": "Pale Yellow",\n  "Appearance": "Clear",\n  "Specific Gravity": "1.010",\n  "Reaction/pH": "Alkaline (7.5)",\n  "Protein": "Nil",\n  "Glucose": "Nil",\n  "Urobilinogen": "Normal",\n  "Bilirubin": "Negative",\n  "Ketones": "Negative",\n  "Nitrites": "Negative",\n  "Pus Cells": "1-2/HPF",\n  "R.B.C": "Nil",\n  "Epithelial Cells": "1-2/HPF",\n  "Casts": "Nil",\n  "Crystals": "Nil",\n  "Serum Status": "Clear",\n  "Triglycerides": "212 mg/dL",\n  "Total Cholesterol": "161 mg/dL",\n  "LDL Cholesterol": "83 mg/dL",\n  "HDL Cholesterol": "36 mg/dL",\n  "VLDL": "42 mg/dL",\n  "Total Cholesterol/HDL Cholesterol Ratio": "4.47",\n  "LDL Cholesterol/HDL Cholesterol Ratio": "2.29",\n  "Glycosylated Haemoglobin": "8.3 %"\n}\n',
                     },
                 ],
-                
+
             },
             {
                 role: 'model',
@@ -227,12 +228,101 @@ const analysis = async (req, res) => {
 
 
 }
+const  llmanalysis = async (req, res) => {
+    const { fileId,  patientId,name } = req.body;
+    let {jsonObject}= req.body;
+    let report1 = new report({});
+    report1 = await report1.save();
+    const id = report1._id;
+    const patientDetails = await patient.findOne({ _id: patientId });
+    const listofreports = patientDetails.reportsList || [];
+    listofreports.push(id);
+    patientDetails.reportsList = listofreports;
+    patientDetails.save();
+
+    const apiKey = process.env.API_KEY_2;
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({
+        model: 'gemini-1.5-flash',
+        safetySettings : safety_settings,
+        systemInstruction:
+            'you are a medical reports analyzer which analyze the reports and give output in a specific format where the  Keys are summary of analysis, Date of report , Precautions, Possible disease risks, severity rating out of 10, which specialist(one or less) is needed. the format of output should be in:  Short-Analysis:String,Precautions:Array,Possible-disease risks:Array,Severity:int,specialist:String as json format\n',
+         
+    });
+    jsonObject["chronic conditions"] = await patient.findOne({ _id: patientId }).select({ 'chronics': 1, '-_id': 1 });
+    
+    const generationConfig = {
+        temperature: 0,
+        topP: 0.95,
+        topK: 64,
+        maxOutputTokens: 8192,
+        responseMimeType: 'text/plain',
+    };
+    const chatSession = model.startChat({
+        generationConfig,
+         
+        history: [
+            {
+                role: 'user',
+                parts: [
+                    {
+                        text: '{\n  "date": "24/03/2019",\n  "Uric Acid": "4.0 mg/dL",\n  "Urea": "16 mg/dL",\n  "Creatinine": "0.5 mg/dL",\n  "Sodium": "138 mmol/L",\n  "Potassium": "5.0 mmol/L",\n  "Chlorides": "101 mmol/L",\n  "Fasting Plasma Glucose": "201 mg/dL",\n  "2 hrs Post Lunch Plasma Glucose": "212 mg/dL",\n  "Haemoglobin": "11.2 g/dL",\n  "Total RBC Count": "4.38 millions/cumm",\n  "Packed Cell Volume / Hematocrit": "34.2 Vol%",\n  "MCV": "78.1 fl",\n  "MCH": "25.7 pg",\n  "MCHC": "32.9 gm/dL",\n  "RDW": "16.8 %",\n  "Total WBC Count": "6400 Cells/cumm",\n  "Neutrophils": "60 %",\n  "Lymphocytes": "28 %",\n  "Eosinophils": "2 %",\n  "Monocytes": "9 %",\n  "Basophils": "1 %",\n  "Absolute Neutrophil Count": "3900 Cells/cumm",\n  "Absolute Lymphocyte Count": "1800 Cells/cumm",\n  "Absolute Eosinophil Count": "100 Cells/cumm",\n  "Absolute Monocyte Count": "600 Cells/cumm",\n  "Platelet Count": "427000 /cumm",\n  "RBC": "Normocytic Normochromic with mild anisocytosis",\n  "WBC": "Normal in morphology,maturity and distribution",\n  "Platelets": "Adequate",\n  "Colour": "Pale Yellow",\n  "Appearance": "Clear",\n  "Specific Gravity": "1.010",\n  "Reaction/pH": "Alkaline (7.5)",\n  "Protein": "Nil",\n  "Glucose": "Nil",\n  "Urobilinogen": "Normal",\n  "Bilirubin": "Negative",\n  "Ketones": "Negative",\n  "Nitrites": "Negative",\n  "Pus Cells": "1-2/HPF",\n  "R.B.C": "Nil",\n  "Epithelial Cells": "1-2/HPF",\n  "Casts": "Nil",\n  "Crystals": "Nil",\n  "Serum Status": "Clear",\n  "Triglycerides": "212 mg/dL",\n  "Total Cholesterol": "161 mg/dL",\n  "LDL Cholesterol": "83 mg/dL",\n  "HDL Cholesterol": "36 mg/dL",\n  "VLDL": "42 mg/dL",\n  "Total Cholesterol/HDL Cholesterol Ratio": "4.47",\n  "LDL Cholesterol/HDL Cholesterol Ratio": "2.29",\n  "Glycosylated Haemoglobin": "8.3 %"\n}\n',
+                    },
+                ],
+
+            },
+            {
+                role: 'model',
+                parts: [
+                    {
+                        text: '```json\n{\n  "Short-Analysis": "The report indicates borderline high fasting and post-lunch blood sugar levels, suggesting prediabetes or diabetes. Elevated HbA1c further supports this. Lipid profile shows slightly elevated triglycerides and LDL cholesterol, increasing cardiovascular risk. Mild urinary tract infection is also observed.",\n  "Date of report": "24/03/2019",\n  "Precautions": [\n    "Follow a balanced diet low in carbohydrates and sugars.",\n    "Engage in regular physical activity.",\n    "Maintain healthy weight.",\n    "Drink plenty of water.",\n    "Monitor blood sugar levels regularly."\n  ],\n  "Possible-disease risks": [\n    "Prediabetes",\n    "Type 2 Diabetes",\n    "Dyslipidemia",\n    "Cardiovascular disease",\n    "Urinary Tract Infection"\n  ],\n  "Severity": 6,\n  "specialist": "Endocrinologist"\n}\n```\n',
+                    },
+                ],
+            },
+        ],
+    });
+    const valuej = JSON.stringify(jsonObject);
+    const result = await chatSession.sendMessage(valuej);
+    let analysisResult = result.response.text();
+    analysisResult = analysisResult
+        .replace('json', '')
+        .replace('```', '')
+        .replace('```', '')
+        .replace('\n', '');
+
+    const analysisjson = JSON.parse(analysisResult);
+    const a = await report.findOne({ _id: id });
+    try {
+        console.log("hi")
+        const response = await axios.post('https://7957-34-41-155-47.ngrok-free.app/getanalysis_v2', jsonObject);
+        console.log('Response:', response.data.analysis);
+        a.precautions = response.data.precautions;
+        a.summary = response.data.analysis;
+    } catch (error) {
+        console.error('Error sending data:', error);
+    }
+    a.possibleDiseases = analysisjson['Possible-disease risks'];
+    a.severity = analysisjson['Severity'];
+    a.specialistReq = analysisjson['specialist'];
+    a.patient=name;
+    a.patientId=patientId;
+    a.file=fileId;
+    a.valuesFromReport=jsonObject;
+    a.dateOfReport = new Date();
+    a.isVerified=false;
+
+    await a.save();
+    
+    
+
+    return res.json({data:true})
+
+
+}
 const chatbot = async (req, res) => {
     const { input } = req.body;
+    console.log(input)
 
-
-   
-  
   const apiKey = process.env.API_KEY_3;
   const genAI = new GoogleGenerativeAI(apiKey);
   
@@ -242,11 +332,11 @@ const chatbot = async (req, res) => {
   });
   
   const generationConfig = {
-    temperature: 1,
+    temperature: 0,
     topP: 0.95,
     topK: 64,
     maxOutputTokens: 8192,
-    responseMimeType: "application/json",
+    responseMimeType: "text/plain",
   };
   
   
@@ -258,34 +348,58 @@ const chatbot = async (req, res) => {
         {
           role: "user",
           parts: [
-            {text: "hello my name is nagasai"},
+            {text: "hello"},
           ],
         },
         {
           role: "model",
           parts: [
-            {text: "Hello NagaSai! 👋 \n\nI'm glad you're here.  😊  Please remember, I can answer medical questions, but for personalized advice, always talk to a doctor. 🩺 \n \nWhat can I help you with today?  \n"},
+            {text: "Hello! How can I help you with your health questions today? \n"},
           ],
         },
         {
           role: "user",
           parts: [
-            {text: "can you tell me about exercise which are good for health"},
+            {text: "i am suffering from fever and backpain what might be the issue"},
           ],
         },
         {
           role: "model",
           parts: [
-            {text: "Regular exercise offers fantastic health benefits!  💪  \n\nSome great choices include:\n\n* **Cardio:** Brisk walking, running, swimming, cycling - strengthens your heart and lungs! \n* **Strength Training:** Lifting weights or using resistance bands - builds muscle and bone strength. \n* **Flexibility & Balance:** Yoga, Pilates, Tai Chi - improves flexibility, balance, and reduces risk of falls. \n\nIt's always a good idea to talk to your doctor before starting a new exercise routine. 😊 \n"},
+            {text: "Fever and back pain can be symptoms of various conditions, ranging from muscle strain to infection. It's impossible to diagnose without a proper medical examination. \n\nIt's crucial to consult a doctor for a diagnosis and personalized treatment plan. They can assess your symptoms, medical history, and perform necessary tests. \n\n"},
+          ],
+        },
+        {
+          role: "user",
+          parts: [
+            {text: "can you tell me the sympots of fever"},
+          ],
+        },
+        {
+          role: "model",
+          parts: [
+            {text: "Common symptoms of fever include:\n\n* Elevated body temperature (above 98.6°F or 37°C)\n* Chills\n* Sweating\n* Headache\n* Muscle aches\n* Fatigue\n* Loss of appetite \n\nIf you are experiencing a high fever or concerning symptoms, consult a doctor immediately. \n"},
+          ],
+        },
+        {
+          role: "user",
+          parts: [
+            {text: "who is the prime minister of india"},
+          ],
+        },
+        {
+          role: "model",
+          parts: [
+            {text: "I am a medical information chatbot and cannot provide answers to non-medical questions. \n\nIf you have any health-related questions, feel free to ask! \n"},
           ],
         },
       ],
     });
   
     const result = await chatSession.sendMessage(input ? input : "hi");
-    const reply = JSON.parse(result.response.text());
-    res.json({data:reply.response})
-};
+    res.send(result.response.text());
+    
+  }
 
 
 
@@ -299,4 +413,4 @@ const chatbot = async (req, res) => {
 
 
 
-module.exports = {getParameters, analysis,chatbot }
+module.exports = {getParameters, analysis,chatbot, llmanalysis }

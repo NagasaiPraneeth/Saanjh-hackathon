@@ -28,10 +28,11 @@ const MedicalChatbot = () => {
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     const data=await axios.post(`${import.meta.env.VITE_BACKEND_URL}/en/chatbot`,{input:input } );
+    console.log(data.data);
 
     let botResponse;
       botResponse = {
-        text: data.data.data,
+        text: data.data,
         sender: 'bot'
       };
 
