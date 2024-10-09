@@ -8,21 +8,26 @@ const Navbar = ({ isDoctor }) => {
   const [hasNotification, setHasNotification] = useState(true);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [notificationHeadingMessage, setnotificationHeadingMessage] = useState("");
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleBellClick = () => {
     if (hasNotification) {
       if (isDoctor) {
-        setnotificationHeadingMessage("New patient: John Doe");
+        setnotificationHeadingMessage("New patient: Aashish");
         setNotificationMessage("Suspected condition: Influenza");
       } else {
         setnotificationHeadingMessage("Diagnosis Done");
-        setNotificationMessage("Patient Jane Doe's diagnosis is complete");
+        setNotificationMessage("Patient Naga Sai's diagnosis is complete");
       }
       setShowNotification(true);
       setHasNotification(false);
       setTimeout(() => setShowNotification(false), 5000); // Hide notification after 5 seconds
     }
   };
+
+  const handleLogout = () => {
+   navigate('/');
+};
 
   return (
     <div className="relative flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e7eef4] px-10 py-3">
@@ -66,10 +71,30 @@ const Navbar = ({ isDoctor }) => {
             {isDoctor ? 'Doctor' : 'Care taker'}
           </div>
         </div>
-        <div
-          className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
-          style={{ backgroundImage: 'url("https://cdn.usegalileo.ai/stability/62891830-57f4-4b6d-ab96-97aa59242b87.png")' }}
-        ></div>
+        <div 
+            className="relative" // Make this div relative for absolute positioning of the button
+          
+            onClick={() => setIsHovered(!isHovered)}
+
+            
+        >
+            <div 
+                className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
+                style={{ backgroundImage: 'url("https://cdn.usegalileo.ai/stability/62891830-57f4-4b6d-ab96-97aa59242b87.png")' }}
+            ></div>
+
+            {isHovered && (
+                <div style={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', marginTop: '10px' }}>
+                    <button 
+                        onClick={handleLogout} 
+                        className="logout-button"
+                        style={{ backgroundColor: 'gray', padding: '5px 10px', borderRadius: '5px' }}
+                    >
+                        Logout
+                    </button>
+                </div>
+            )}
+        </div>
       </div>
 
       {showNotification && (
