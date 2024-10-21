@@ -376,6 +376,7 @@ export default function Doctoranalysis() {
                       }}
                     >
                       {/* PDF pages will be rendered here */}
+                      <iframe src={url} width="100%" height="500px" style={{ border: "none" }}></iframe>
                     </div>
                   </div>
                 </div>

@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
+import Swal from 'sweetalert2';
+import Loader from "./Loader";
 
 const Signin = ({ setIsDoctor }) => {
   const [userRole, setUserRole] = useState("Select your role");
@@ -22,6 +24,7 @@ const Signin = ({ setIsDoctor }) => {
 
   const handleSignIn = async() => {
     if (email && password){
+    
     const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/en/login`, {
           email:email,
           password: password 
